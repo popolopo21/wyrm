@@ -5,12 +5,15 @@
 
 from typing import List
 from datetime import datetime
+import pytz
 from bs4 import BeautifulSoup
 # useful for handling different item types with a single interface
 from telexhu.items import TelexhuArticle
-from langchain.embeddings.openai import OpenAIEmbeddings
 import edgedb
+from .queries.create_article_async_edgeql import create_article
+from loguru import logger
 
+logger.add("out.log", backtrace=True, diagnose=True)
 openai_api_key = ""
 
 class TelexhuPipeline:
@@ -49,12 +52,16 @@ class TelexhuPipeline:
         for hun_month, eng_month in month_map.items():
             published_at = published_at.replace(hun_month, eng_month)
 
-        return datetime.strptime(published_at, "%Y. %B %d. – %H:%M")
+        naive_dt = datetime.strptime(published_at, "%Y. %B %d. – %H:%M")
+        return naive_dt.replace(tzinfo=pytz.UTC)
     
     @staticmethod
     def clean_modified_at(modified_at: str) -> datetime:
         return datetime.fromisoformat(modified_at)
     
+    @staticmethod
+    def clean_sitemap_date(modified_at: str) -> datetime:
+        return datetime.fromisoformat(modified_at)
     def process_item(self, article: TelexhuArticle, spider) -> TelexhuArticle:
         try:
             article.title = self.clean_title(article.title)
@@ -63,16 +70,17 @@ class TelexhuPipeline:
             article.content_text = self.clean_content(article.content_html)
             article.a_published_at = self.clean_a_published_at(article.a_published_at)
             article.a_modified_at = self.clean_modified_at(article.a_modified_at)
+            article.sitemap_date = self.clean_sitemap_date(article.sitemap_date)
         except Exception as e:
             print(str(e) + '\n' * 10)
         return article
-
-
-embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
-
+ 
 class StoreArticlePipeline:
         def __init__(self):
-            self.client = edgedb.create_client()
+            self.client = edgedb.create_async_client()
 
-        def process_item(self, article: TelexhuArticle, spider) -> TelexhuArticle:
-            pass
+        async def process_item(self, article: TelexhuArticle, spider) -> TelexhuArticle:
+            try:
+                await create_article(self.client, domain=article.domain, **article.to_dict())
+            except Exception as e:
+                logger.error(f'{e}')
