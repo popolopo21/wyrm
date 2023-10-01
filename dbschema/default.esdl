@@ -2,8 +2,8 @@ using extension pgvector;
 
 
 module default {
-scalar type TextEmbedding extending
-    ext::pgvector::vector<1536>;
+scalar type BertEmbedding extending
+    ext::pgvector::vector<1024>;
 
   abstract type Auditable {
     required  created_at: datetime {
@@ -20,26 +20,40 @@ scalar type TextEmbedding extending
     required domain: str {
       constraint exclusive
     }
-    multi link articles:= .<website[is Article];
+    multi link webpages:= .<website[is Webpage];
     property sitemap:= (
       json_object_pack((
-        for article in (select .articles {url, sitemap_date})
-        union (article.url, <json>article.sitemap_date)
-      ))
+          for webpage in (select .webpages {path, lastmod})
+          union (.domain++webpage.path, <json>webpage.lastmod)
+      )) ++ to_json("{}")
     )
   }
 
-  type Article extending Auditable {
-    required url: str;
-    title: str;
-    author: str;
-    tags: array<str>;
-    content_html: str;
-    content_text: str;
-    content_text_embedding: TextEmbedding;
-    required sitemap_date: datetime;
-    a_published_at: datetime;
-    a_modified_at: datetime;
+  type Webpage extending Auditable {
+    required path: str;
+    required html: str;
+    required lastmod: datetime;
     required website: Website;
+    link article:= .<webpage[is Article]
+  }
+
+
+  type Article extending Auditable {
+    title: str;
+    description: str;
+    authors: array<str>;
+    section: str;
+    tags: array<str>;
+    content_text: str;
+    title_embedding: BertEmbedding;
+    description_embedding: BertEmbedding;
+    a_published_at: datetime;
+    a_modified_at: datetime{
+      default:= .a_published_at
+    }
+    required webpage: Webpage{
+      constraint exclusive
+    };
+    link website:= .webpage.website;
   }
 }

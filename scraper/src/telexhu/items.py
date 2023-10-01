@@ -4,11 +4,18 @@
 # https://docs.scrapy.org/en/latest/topics/items.html
 from typing import Union, Optional, List, Dict
 from datetime import datetime
-import dataclasses
-from dataclasses import dataclass
+from pydantic import BaseModel
 from urllib.parse import urlparse
-
-@dataclass
+from .queries.get_website_async_edgeql import GetWebsiteResult
+from uuid import UUID
+        
+class Webpage(BaseModel):
+        path: str
+        html: str
+        lastmod: datetime
+        domain: str
+        
+        
 class TelexhuArticle():
         url: str
         title: str

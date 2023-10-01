@@ -1,0 +1,8 @@
+lxml
+edgedb
+loguru
+pydantic
+dotenv-python
+scrapy
+scrapeops-scrapy-proxy-sdk
+bs4

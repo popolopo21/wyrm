@@ -1,0 +1,6 @@
+edgedb
+pydantic
+bs4
+transformers[torch]
+langchain
+sentence-transformers
