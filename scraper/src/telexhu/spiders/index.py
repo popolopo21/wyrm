@@ -28,13 +28,12 @@ class IndexSitemapSpider(scrapy.Spider):
         # Loop through each sitemap in the XML
         for sitemap in root.findall("sm:sitemap", self.namespace):
             loc = sitemap.find("sm:loc", self.namespace).text
-            if "cikkek" in loc:
+            if "cikkek_202309" in loc:
                 yield scrapy.Request(
                     loc,
                     callback=self.parse_sitemap,
                     cb_kwargs={"website": website},
                 )
-            break
 
     def parse_sitemap(self, response, website):
         # Extract <loc> and <lastmod> tags from each sitemap

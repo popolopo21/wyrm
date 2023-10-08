@@ -12,17 +12,18 @@ BOT_NAME = "telexhu"
 SPIDER_MODULES = ["telexhu.spiders"]
 NEWSPIDER_MODULE = "telexhu.spiders"
 
-# SCRAPEOPS_API_KEY = "45ac28a3-182f-4feb-9014-988de23dc543"
+# ROTATING_PROXY_LIST = ["194.79.44.158:158", "31.42.57.129:3699", "185.169.181.28:4145"]
+SCRAPEOPS_API_KEY = "45ac28a3-182f-4feb-9014-988de23dc543"
 # SCRAPEOPS_PROXY_ENABLED = True
 # SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT = "https://headers.scrapeops.io/v1/user-agents"
 # SCRAPEOPS_FAKE_USER_AGENT_ENABLED = True
-# SCRAPEOPS_FAKE_BROWSER_HEADER_ENDPOINT = (
-#     "http://headers.scrapeops.io/v1/browser-headers"
-# )
-# SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
-# SCRAPEOPS_NUM_RESULTS = 5
+SCRAPEOPS_FAKE_BROWSER_HEADER_ENDPOINT = (
+    "http://headers.scrapeops.io/v1/browser-headers"
+)
+SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
+SCRAPEOPS_NUM_RESULTS = 5
 
-SCRAPEOPS_PROXY_ENABLED = True
+# SCRAPEOPS_PROXY_ENABLED = True
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = "telexhu (+http://www.yourdomain.com)"
@@ -62,8 +63,10 @@ ROBOTSTXT_OBEY = True
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    #  "telexhu.middlewares.TelexhuDownloaderMiddleware": 543,
-    # "telexhu.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 400,
+    "telexhu.middlewares.TelexhuDownloaderMiddleware": 543,
+    "telexhu.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 400,
+    # "rotating_proxies.middlewares.RotatingProxyMiddleware": 610,
+    # "rotating_proxies.middlewares.BanDetectionMiddleware": 620,
     # "telexhu.middlewares.ScrapeOpsProxyMiddleware": 725
 }
 

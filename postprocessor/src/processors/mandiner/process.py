@@ -19,15 +19,17 @@ from queries.get_unprocessed_webpages_async_edgeql import get_unprocessed_webpag
 from queries.create_article_async_edgeql import create_article
 
 from common import client, embeddings
-from processors.index.extractor import generate_article_from_html
+from processors.mandiner.extractor import generate_article_from_html
 
 logger.add("out.log", backtrace=True, diagnose=True)
 
-domain = "https://index.hu"
+domain = "https://mandiner.hu"
 
 
 async def create_articles():
     webpages = await get_unprocessed_webpages(client, domain=domain)
+    # with open("my_webpage.html", "w") as html_file:
+    #     html_file.write(webpages[1].html)
     for webpage in tqdm(webpages):
         try:
             article = generate_article_from_html(webpage.html)
@@ -76,6 +78,6 @@ async def generate_embeddings():
             )
 
 
-async def process_index():
+async def process_mandiner():
     await create_articles()
     await generate_embeddings()

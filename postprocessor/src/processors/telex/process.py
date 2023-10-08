@@ -19,7 +19,7 @@ from queries.get_unprocessed_webpages_async_edgeql import get_unprocessed_webpag
 from queries.create_article_async_edgeql import create_article
 
 from common import client, embeddings
-from telex.extractor import generate_article_from_html
+from processors.telex.extractor import generate_article_from_html
 
 logger.add("out.log", backtrace=True, diagnose=True)
 
@@ -28,7 +28,7 @@ domain = "https://telex.hu"
 
 async def create_articles():
     webpages = await get_unprocessed_webpages(client, domain=domain)
-    for webpage in webpages:
+    for webpage in tqdm(webpages):
         try:
             article = generate_article_from_html(webpage.html)
             article.webpage_id = webpage.id
@@ -38,8 +38,8 @@ async def create_articles():
                 article.a_modified_at = article.a_published_at
             await create_article(client, **article.model_dump())
         except Exception as exception:
-            raise Exception(
-                f"Error while generating article:{webpage.path}: {exception}"
+            logger.error(
+                f"Error while generating article: {domain}{webpage.path}: {exception}"
             )
 
 

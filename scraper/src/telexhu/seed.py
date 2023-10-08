@@ -2,7 +2,7 @@ from queries.create_website_async_edgeql import create_website
 import edgedb
 import asyncio
 
-websites = ["https://index.hu", "https://telex.hu"]
+websites = ["https://index.hu", "https://telex.hu", "https://mandiner.hu"]
 
 client = edgedb.create_async_client()
 

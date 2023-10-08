@@ -8,7 +8,8 @@ from models import Article
 
 def extract_title(soup) -> str:
     title = soup.find("meta", {"property": "og:title"})
-    return title["content"].strip()
+    title = title["content"].replace(" - Mandiner", "")
+    return title.strip()
 
 
 def extract_description(soup) -> str:
@@ -18,28 +19,30 @@ def extract_description(soup) -> str:
 
 def extract_authors(soup) -> List[str]:
     authors = soup.find_all("meta", {"name": "author"})
-    if not authors:
+    if authors:
+        return [author["content"].strip() for author in authors]
+    else:
         return [""]
-    return [author["content"].strip() for author in authors]
 
 
 def extract_section(soup) -> str:
     section = soup.find("meta", {"name": "news_keywords"})
-    if section is None:
-        return ""
-    return section["content"].strip()
+    if section:
+        return section["content"].strip()
+    return ""
 
 
 # TODO: Make every tag first letter Uppercase
 def extract_tags(soup) -> List[str]:
     tags = soup.find("meta", {"name": "keywords"})
-    if tags is None:
+    if tags:
+        return [tag.strip() for tag in tags["content"].split()]
+    else:
         return [""]
-    return [tag.strip() for tag in tags["content"].split()]
 
 
 def extract_content_text(soup) -> str:
-    return soup.find("div", class_="cikk-torzs").get_text()
+    return soup.find("div", class_="block-content").get_text()
 
 
 def extract_a_published_at(soup) -> datetime:
@@ -57,14 +60,23 @@ def extract_a_modified_at(soup) -> datetime:
 
 def test_generate_article_from_html(html: str) -> Article:
     try:
+        soup = BeautifulSoup(html, "html.parser")
         title = extract_title(soup)
+        print(title)
         description = extract_description(soup)
+        print(description)
         authors = extract_authors(soup)
+        print(authors)
         section = extract_section(soup)
+        print(section)
         tags = extract_tags(soup)
+        print(tags)
         content_text = extract_content_text(soup)
+        print(content_text)
         a_published_at = extract_a_published_at(soup)
+        print(a_published_at)
         a_modified_at = extract_a_modified_at(soup)
+        print(a_modified_at)
     except Exception as e:
         print(e)
 

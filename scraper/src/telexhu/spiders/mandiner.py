@@ -7,28 +7,34 @@ from loguru import logger
 import json
 from urllib.parse import urlparse
 from datetime import datetime
+import xml.etree.ElementTree as ET
 
 
-class TelexSitemapSpider(scrapy.Spider):
-    name = "telexsitemap"
-    start_urls = ["https://telex.hu/sitemap/index.xml"]
-    domain = "https://telex.hu"
+class MandinerSitemapSpider(scrapy.Spider):
+    name = "mandinersitemap"
+    start_urls = ["https://mandiner.hu/sitemapindex.xml"]
+    domain = "https://mandiner.hu"
     client = edgedb.create_async_client()
 
-    namespace = {"sm": "https://www.sitemaps.org/schemas/sitemap/0.9"}
+    namespace = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+    disallowed_domains = ["tags", "home", "categories", "news", "fresh"]
 
     async def parse(self, response):
         # Extract <loc> tags from sitemapindex
         website = await get_website(self.client, domain=self.domain)
         if website is None:
             logger.error("Could not find website")
-        sitemap_urls = response.xpath(
-            "//sm:sitemap/sm:loc/text()", namespaces=self.namespace
-        ).getall()
-        for sitemap_url in sitemap_urls:
-            if "2023/09" in sitemap_url:
+        # Parse the XML data
+        root = ET.fromstring(response.body)
+        # Loop through each sitemap in the XML
+        for sitemap in root.findall("sm:sitemap", self.namespace):
+            loc = sitemap.find("sm:loc", self.namespace).text
+            for disallowed_domain in self.disallowed_domains:
+                if disallowed_domain in loc:
+                    continue
+            if "202309_sitemap.xml" in loc:
                 yield scrapy.Request(
-                    sitemap_url,
+                    loc,
                     callback=self.parse_sitemap,
                     cb_kwargs={"website": website},
                 )
@@ -38,13 +44,11 @@ class TelexSitemapSpider(scrapy.Spider):
         urls = response.xpath("//sm:url", namespaces=self.namespace)
         if website.sitemap:
             sitemap = json.loads(website.sitemap)
-        # else:
-        #     sitemap = {}
+
         for url in urls:
             loc = url.xpath("./sm:loc/text()", namespaces=self.namespace).get()
             lastmod = url.xpath("./sm:lastmod/text()", namespaces=self.namespace).get()
             lastmod = datetime.fromisoformat(lastmod)
-
             # Check if URL is in the dictionary
             if loc not in sitemap or datetime.fromisoformat(sitemap[loc]) != lastmod:
                 yield scrapy.Request(
