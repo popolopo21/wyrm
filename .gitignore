@@ -160,3 +160,9 @@ cython_debug/
 #.idea/
 
 
+
+dbschema/edgeql-js
+
+webapp/src/edgeql-js
+
+webapp/src/lib/server/edgeql-js
