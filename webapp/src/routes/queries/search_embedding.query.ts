@@ -3,7 +3,7 @@
 import type {Executor} from "edgedb";
 
 export type Search_embeddingArgs = {
-  "title": string;
+  "description_embedding": Float32Array;
 };
 
 export type Search_embeddingReturns = {
@@ -14,8 +14,10 @@ export type Search_embeddingReturns = {
 
 export async function search_embedding(client: Executor, args: Search_embeddingArgs): Promise<Search_embeddingReturns> {
   return client.query(`\
-select Article { title, description, url:=.webpage.website.domain ++ .webpage.path}
-    filter .title like "%" ++ <str>$title ++ "%"
-    limit 10;`, args);
+select Article {title, description, url:=.webpage.website.domain ++ .webpage.path}
+order by ext::pgvector::euclidean_distance(
+  .description_embedding, <BertEmbedding>$description_embedding)
+empty last
+limit 10;`, args);
 
 }

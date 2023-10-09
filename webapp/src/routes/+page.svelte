@@ -12,7 +12,7 @@
 
 	<ul>
 		{#each data.results as result}
-			<li>{result.title}</li>
+			<li><a href={result.url}>{result.title}</a></li>
 		{/each}
 	</ul>
 </div>
