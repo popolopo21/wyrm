@@ -1,30 +1,21 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	export let data: PageData;
+    import {Canvas} from "@threlte/core"
+    import Scene from '../components/Scene.svelte'
+    import type {PageData} from "./$types"
+    export let data: PageData
+
 </script>
 
-<div class="container">
-	<form>
-		<label for="searchInput">Keresés</label>
-		<input id="searchInput" name="searchTerm" type="search" />
-		<button class="anyad" type="submit">Keresés</button>
-	</form>
-
-	<ul>
-		{#each data.results as result}
-			<li><a href={result.url}>{result.title}</a></li>
-		{/each}
-	</ul>
+<div class="scene">
+    <Canvas>
+        <Scene articles={data.articles}/>
+    </Canvas>
 </div>
 
 <style>
-    .container {
-        max-width: 60rem;
-        margin: auto;
-        padding: 4rem;
-    }
-    .anyad {
-        max-width: 15rem;
-        margin: auto;
+    .scene {
+        position: absolute;
+        inset: 0;
+        background-color: hsl(200, 10%, 10%);
     }
 </style>
