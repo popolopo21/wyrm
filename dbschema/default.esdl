@@ -33,7 +33,7 @@ scalar type BertEmbedding extending
     required path: str;
     required html: str;
     required lastmod: datetime;
-    required website: Website;
+    link required website: Website;
     link article:= .<webpage[is Article]
   }
 
@@ -45,8 +45,6 @@ scalar type BertEmbedding extending
     section: str;
     tags: array<str>;
     content_text: str;
-    title_embedding: BertEmbedding;
-    description_embedding: BertEmbedding;
     a_published_at: datetime;
     a_modified_at: datetime{
       default:= .a_published_at
@@ -55,5 +53,31 @@ scalar type BertEmbedding extending
       constraint exclusive
     };
     link website:= .webpage.website;
+    link enhanced_article: .<article[is EnhancedArticle];
+  }
+
+  type EnhancedArticle extends Auditable {
+    link required article: Article;
+    multi link title_embedding: TextEmbedding
+    multi link description_embedding: TextEmbedding
+    multi link content_embedding: TextEmbedding
+    content_keywords: array<str>
+
+
+
+  type TextEmbedding {
+    # Link back to EnhancedArticle
+    link required enhanced_article: EnhancedArticle
+    
+    # Indicates which part of the text this embedding represents
+    required text_part: enum<'title', 'description', 'content'>;
+    
+    # Order of the embedding for texts that require multiple embeddings
+    required order: int;
+    
+    required text: string;
+
+    # The embedding vector
+    required embedding: BertEmbedding;
   }
 }
