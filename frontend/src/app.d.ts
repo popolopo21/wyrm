@@ -7,13 +7,6 @@ declare global {
 		// interface PageData {}
 		// interface Platform {}
 	}
-	var chats: {
-		[key: string]: {
-			timeline: [{ 
-				role: 'system' | 'ai' | 'user';
-				message: string
-			}]};
-	};
 }
 
 export {};
