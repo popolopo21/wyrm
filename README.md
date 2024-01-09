@@ -28,11 +28,7 @@ This project is in it's early stage, it is more like an idea for now.
 - The basic template of the backend is in place.
 
 ## Installation
-(Include detailed steps to set up the project locally. For example:)
-1. Clone the repository: `git clone [repository URL]`
-2. Navigate to the project directory: `cd [project directory]`
-3. Install required dependencies: `pip install -r requirements.txt`
-4. (Additional installation steps)
+Not yet.
 
 ## Usage
 Not yet.
